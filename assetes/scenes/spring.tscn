@@ -1,0 +1,76 @@
+[gd_scene load_steps=8 format=3 uid="uid://rkf64v8bpbk5"]
+
+[ext_resource type="Texture2D" uid="uid://blx2bgkpo6bje" path="res://assetes/images/Spring!.png" id="1_emfra"]
+[ext_resource type="Script" path="res://assetes/scripts/spring.gd" id="1_mb5wc"]
+
+[sub_resource type="Animation" id="Animation_jev3q"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_mg3ns"]
+resource_name = "idle"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_fcprj"]
+resource_name = "spring"
+length = 0.8
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.3, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ep8l8"]
+_data = {
+"RESET": SubResource("Animation_jev3q"),
+"idle": SubResource("Animation_mg3ns"),
+"spring": SubResource("Animation_fcprj")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g3jjx"]
+size = Vector2(14, 4)
+
+[node name="spring" type="Area2D"]
+script = ExtResource("1_mb5wc")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_ep8l8")
+}
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_emfra")
+hframes = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -3)
+shape = SubResource("RectangleShape2D_g3jjx")

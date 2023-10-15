@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c2f70gcpsjekx"
+path="res://.godot/imported/Place_holder_music.mp3-4dad7273b4d01ade20e9aab98b63c24e.mp3str"
+
+[deps]
+
+source_file="res://assetes/music - sounds/Place_holder_music.mp3"
+dest_files=["res://.godot/imported/Place_holder_music.mp3-4dad7273b4d01ade20e9aab98b63c24e.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

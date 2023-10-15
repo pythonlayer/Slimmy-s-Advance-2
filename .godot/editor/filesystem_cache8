@@ -1,0 +1,30 @@
+ea4bc82a6ad023ab7ee23ee620429895
+::res://::1697308136
+export_presets.cfg::TextFile::-1::1696693728::0::1::::<><>::
+::res://assetes/::1696624891
+README.md::TextFile::-1::1693408448::0::1::::<><>::
+::res://assetes/images/::1696625654
+bg.png::CompressedTexture2D::3693625676795858882::1692619548::1693323574::1::::<><>::
+bgparalax.png::CompressedTexture2D::590066893146943443::1692922055::1693323574::1::::<><>::
+Croco1.png::CompressedTexture2D::6948965672654118104::1693321452::1693323574::1::::<><>::
+Croco2.png::CompressedTexture2D::1145149618152442317::1693321538::1693323574::1::::<><>::
+icone.png::CompressedTexture2D::9054538011123359077::1693143998::1693323574::1::::<><>::
+particle2.png::CompressedTexture2D::6731778126734934546::1693144755::1693323574::1::::<><>::
+particle.png::CompressedTexture2D::1394559832872525408::1693135007::1693323574::1::::<><>::
+player.png::CompressedTexture2D::1606587082702069100::1693131180::1693323574::1::::<><>::
+slimmy.png::CompressedTexture2D::9003351796943645644::1696625651::1696625654::1::::<><>::
+Spring!.png::CompressedTexture2D::3207620127943036530::1692573707::1693323574::1::::<><>::
+tilemap.png::CompressedTexture2D::1696812282342165186::1692723051::1693323574::1::::<><>::
+::res://assetes/music - sounds/::1693323574
+Place_holder_music.mp3::AudioStreamMP3::6680249941935178435::1692635299::1693323574::1::::<><>::
+::res://assetes/scenes/::1696958905
+player_1.tscn::PackedScene::2269007335235205233::1696958905::0::1::::<><>::uid://c2f70gcpsjekx::::res://assetes/music - sounds/Place_holder_music.mp3<>uid://t4sgxnc34kps::::res://assetes/images/particle.png<>uid://d1jj5hlb1lev1::::res://assetes/images/slimmy.png<>uid://c256nw77bva4a::::res://assetes/images/particle2.png
+spring.tscn::PackedScene::1214214621081375710::1696631719::0::1::::<><>::uid://blx2bgkpo6bje
+world.tscn::PackedScene::6836630112937292687::1696631719::0::1::::<><>::uid://7lehprto5ubp
+::res://assetes/scripts/::1693324271
+Player_movement.gd::GDScript::-1::1693074796::0::1::::PlayerMovementData<>Resource<>::
+spring.gd::GDScript::-1::1693324271::0::1::::<>Area2D<>::
+::res://build/::1696693783
+slimmy's advance.apple-touch-icon.png::CompressedTexture2D::4299433166023969314::1696693727::1696693783::1::::<><>::
+slimmy's advance.icon.png::CompressedTexture2D::3060630044977873056::1696693727::1696693783::1::::<><>::
+slimmy's advance.png::CompressedTexture2D::620289915848812455::1696693727::1696693783::1::::<><>::

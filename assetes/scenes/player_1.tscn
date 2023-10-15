@@ -1,0 +1,363 @@
+[gd_scene load_steps=17 format=3 uid="uid://7lehprto5ubp"]
+
+[ext_resource type="AudioStream" uid="uid://c2f70gcpsjekx" path="res://assetes/music - sounds/Place_holder_music.mp3" id="1_kxmvk"]
+[ext_resource type="Texture2D" uid="uid://t4sgxnc34kps" path="res://assetes/images/particle.png" id="3_0snlk"]
+[ext_resource type="Texture2D" uid="uid://d1jj5hlb1lev1" path="res://assetes/images/slimmy.png" id="4_bhlpe"]
+[ext_resource type="Texture2D" uid="uid://c256nw77bva4a" path="res://assetes/images/particle2.png" id="4_rvro8"]
+
+[sub_resource type="GDScript" id="GDScript_371ig"]
+script/source = "extends CharacterBody2D
+
+# Declare constants for values that do not change
+
+@export var speed = 300.0
+var SPEED = speed 
+@export var acceleration = 300.0
+var ACCELERATION = acceleration
+@export var friction = 300.0
+var FRICTION = friction *16
+
+
+
+# Get the gravity from the project settings to be synced with RigidBody nodes.
+@export var jump_peack = 0.5
+@export var jump_height = 75.0
+@export var air_acceleration = 10.0
+@export var air_friction = 18.0
+@export var air_jump = true
+
+
+# Get the animator node
+@onready var animator = $animator
+@onready var coyote_jump_timer = $CoyoteJump
+@onready var run = $run
+@onready var jump = $jump
+@onready var boom = $Boom
+@onready var gravity = (2*jump_height)/pow(jump_peack,2)
+@onready var JUMP_VELOCITY = gravity * jump_peack *-1
+
+
+
+func _physics_process(delta):
+	print(gravity)
+	apply_gravity(delta)
+	handle_jump(delta)
+	handle_movement(delta)
+	var was_on_floor = is_on_floor()
+	move_and_slide()
+	var just_left_ledge = was_on_floor and not is_on_floor() and velocity.y >= 0
+	if just_left_ledge:
+		coyote_jump_timer.start()
+
+func _process(delta):
+	update_sprite()
+	update_animation()
+
+
+
+
+func _on_dead_zones_body_shape_entered(body_rid, body, body_shape_index, local_shape_index):
+	restart_scene()
+
+# Apply the gravity to the velocity vector
+func apply_gravity(delta):
+	if not is_on_floor():
+		jump.set_emitting(true)
+		velocity.y += gravity * delta
+	else:
+		jump.set_emitting(false)
+
+# Handle the jump input and modify the velocity vector accordingly
+func handle_jump(delta):
+	if is_on_floor(): air_jump = true
+	if is_on_floor() or coyote_jump_timer.time_left > 0.0 :
+		if Input.is_action_just_pressed(\"Jump\"):
+			velocity.y = JUMP_VELOCITY
+	elif not is_on_floor():
+		if Input.is_action_just_released(\"Jump\") and velocity.y < JUMP_VELOCITY / 2:
+			velocity.y = JUMP_VELOCITY / 2
+		if Input.is_action_just_pressed(\"Jump\") and air_jump:
+			boom.set_emitting(true)
+			air_jump = false
+			velocity.y = JUMP_VELOCITY
+	if velocity.y > 0:
+		boom.set_emitting(false)
+
+
+# Handle the movement input and modify the velocity vector accordingly
+func handle_movement(delta):
+	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
+	if is_on_floor():
+		if direction != 0:
+			velocity.x = move_toward(velocity.x, SPEED * direction, ACCELERATION * delta)
+			run.set_amount(SPEED/8)
+			run.set_emitting(true) # Start emitting particles
+		else:
+			velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
+			run.set_emitting(false) # Stop emitting particles
+	else:
+		run.set_emitting(false)
+		if direction != 0:
+			velocity.x = move_toward(velocity.x, SPEED * direction,air_acceleration*delta)
+
+		else:
+
+			velocity.x = move_toward(velocity.x, 0, air_friction*delta)
+
+
+
+# Update the sprite's flip based on the movement direction
+func update_sprite():
+	var right = Input.is_action_pressed(\"ui_right\")
+	var left = Input.is_action_pressed(\"ui_left\")
+	if right:
+		$Playersprite.flip_h = false # Flip the sprite horizontally if moving right
+	if left:
+		$Playersprite.flip_h = true # Flip the sprite horizontally if moving left
+
+# Update the animation based on the velocity and state of the character
+func update_animation():
+	var right = Input.is_action_pressed(\"ui_right\")
+	var left = Input.is_action_pressed(\"ui_left\")
+	if velocity.y > -10 and not is_on_floor():
+		animator.play(\"fall\") # Play the fall animation if falling down
+	elif velocity.y < 3 and not is_on_floor():
+		animator.play(\"jump\") # Play the jump animation if jumping up
+	elif right or left:
+		animator.play(\"run\") # Play the run animation if moving horizontally
+	else:
+		animator.play(\"idle\") # Play the idle animation if not moving
+
+# Handle the restart input and reload the current scene
+func handle_restart():
+	get_tree().reload_current_scene() # Reload the current scene if pressing restart button
+
+# Boost the vertical velocity if entering a spring area
+func boost_jump():
+	velocity.y = JUMP_VELOCITY * 2
+
+# Reload the current scene if entering a dead barrier
+func restart_scene():
+	get_tree().reload_current_scene()
+
+
+func _on_spring_super_jump():
+	boost_jump()
+
+
+func _on_dead_zones_area_shape_entered(area_rid, area, area_shape_index, local_shape_index):
+	animator.play(\"damage\")
+	get_tree().reload_current_scene()
+
+"
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_iggkt"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 1.0
+emission_ring_radius = 16.0
+emission_ring_inner_radius = 1.0
+particle_flag_rotate_y = true
+particle_flag_disable_z = true
+spread = 180.0
+flatness = 1.0
+gravity = Vector3(0, 100, 0)
+initial_velocity_max = 20.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.0
+scale_max = 0.7
+turbulence_enabled = true
+turbulence_noise_speed_random = 2.2
+anim_speed_min = 5.0
+anim_speed_max = 9.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_vb6tn"]
+lifetime_randomness = 0.3
+emission_shape = 3
+emission_box_extents = Vector3(1, 1, 1)
+particle_flag_disable_z = true
+spread = 18.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = -50.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.0
+scale_max = 0.5
+turbulence_enabled = true
+collision_use_scale = true
+
+[sub_resource type="Animation" id="Animation_lgdic"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [4]
+}
+
+[sub_resource type="Animation" id="Animation_jb6se"]
+resource_name = "damage"
+
+[sub_resource type="Animation" id="Animation_nmb5i"]
+resource_name = "fall"
+length = 0.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [6, 7]
+}
+
+[sub_resource type="Animation" id="Animation_43rgp"]
+resource_name = "idle"
+length = 1.4
+loop_mode = 1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0398695, 0.160131, 0.320261, 0.466152),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_iypao"]
+resource_name = "jump"
+length = 0.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [4, 5]
+}
+
+[sub_resource type="Animation" id="Animation_5amla"]
+resource_name = "run"
+length = 0.3
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0505042, 0.0736403, 0.2, 0.209403),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [1, 8, 3, 9]
+}
+
+[sub_resource type="Animation" id="Animation_r6ket"]
+resource_name = "spring"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_cyvqi"]
+_data = {
+"RESET": SubResource("Animation_lgdic"),
+"damage": SubResource("Animation_jb6se"),
+"fall": SubResource("Animation_nmb5i"),
+"idle": SubResource("Animation_43rgp"),
+"jump": SubResource("Animation_iypao"),
+"run": SubResource("Animation_5amla"),
+"spring": SubResource("Animation_r6ket")
+}
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_8wt7n"]
+particle_flag_align_y = true
+particle_flag_rotate_y = true
+particle_flag_disable_z = true
+direction = Vector3(1, 1, 1)
+spread = 76.5
+gravity = Vector3(5, 500, -5)
+initial_velocity_min = -100.0
+initial_velocity_max = 150.0
+angular_velocity_min = -396.0
+angular_velocity_max = 252.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+linear_accel_min = -90.0
+linear_accel_max = 13.4
+damping_min = 15.0
+damping_max = 15.0
+scale_min = 0.0
+scale_max = 0.5
+
+[node name="Player1" type="CharacterBody2D"]
+floor_constant_speed = true
+floor_snap_length = 3.0
+script = SubResource("GDScript_371ig")
+speed = 1000.0
+acceleration = 12.0
+friction = 35.0
+air_acceleration = 0.5
+
+[node name="jump" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 10
+process_material = SubResource("ParticleProcessMaterial_iggkt")
+texture = ExtResource("4_rvro8")
+fract_delta = false
+
+[node name="run" type="GPUParticles2D" parent="."]
+position = Vector2(0, 4)
+emitting = false
+amount = 14
+process_material = SubResource("ParticleProcessMaterial_vb6tn")
+texture = ExtResource("3_0snlk")
+
+[node name="animator" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_cyvqi")
+}
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+position = Vector2(0, 8)
+stream = ExtResource("1_kxmvk")
+autoplay = true
+
+[node name="Playersprite" type="Sprite2D" parent="."]
+position = Vector2(0, -3)
+texture = ExtResource("4_bhlpe")
+hframes = 10
+frame = 4
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+position = Vector2(1, -1)
+polygon = PackedVector2Array(-4, 4, -8, 4, -9, 1, -8, -2, -6, -5, -3, -8, 3, -8, 6, -7, 9, -3, 9, -1, 10, 1, 10, 4, 4, 4)
+
+[node name="CoyoteJump" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
+[node name="Boom" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 100
+process_material = SubResource("ParticleProcessMaterial_8wt7n")
+texture = ExtResource("3_0snlk")
+randomness = 1.0

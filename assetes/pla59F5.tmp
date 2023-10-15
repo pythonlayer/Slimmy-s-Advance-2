@@ -1,0 +1,355 @@
+[gd_scene load_steps=13 format=3 uid="uid://7lehprto5ubp"]
+
+[ext_resource type="Texture2D" uid="uid://bflegxhic88k3" path="res://Sprite-0002.png" id="1_pbxwm"]
+[ext_resource type="AudioStream" uid="uid://o6iih3ejio3t" path="res://Kubbi  Up In My Jam  NO COPYRIGHT 8bit Music.mp3" id="2_xh4eg"]
+
+[sub_resource type="GDScript" id="GDScript_371ig"]
+script/source = "extends CharacterBody2D
+
+# Define some constants and variables for the game logic
+
+# The tile size in pixels
+const TILE_SIZE = 16
+
+# Running
+# The horizontal speed of the character in tiles per second
+@export var speed = 14.0
+# The deceleration factor for reducing the speed in tiles per second
+@export var deceleration = 14.0
+# The acceleration factor for increasing the speed in tiles per second squared
+@export var acceleration = 50.0
+# The horizontal speed of the character in pixels per second
+var SPEED = speed * TILE_SIZE
+# The deceleration factor for reducing the speed in pixels per second squared
+var DECELERATION = deceleration * TILE_SIZE
+# The acceleration factor for increasing the speed in pixels per second squared
+var ACCELERATION = acceleration * TILE_SIZE
+
+# Jumping
+# The height of the jump in tiles
+@export var jump_height = 4.5
+# The initial vertical velocity when jumping in pixels per second
+var gravity = ProjectSettings.get_setting(\"physics/2d/default_gravity\") * 1.6 # Multiply by 1.6 for down gravity
+var JUMP_VELOCITY = -sqrt(2 * gravity * jump_height * TILE_SIZE)
+# A flag to indicate if the character can control the jump height
+var variable_height = true 
+# A factor to reduce the vertical velocity when releasing the jump button
+var jump_cut_off = 2.3 
+# The maximum vertical speed of the character
+var terminal_velocity = 20.0 
+
+# Assists
+# A flag to indicate if the character can perform a double jump
+var can_double_jump = true 
+# A time window to allow jumping after leaving the floor
+var cayote_time = 0.4 
+# A time window to buffer a jump input before hitting the floor
+var jump_buffer = 0.2 
+
+# Juice
+# A flag to indicate if the character should use rounded collision shapes
+var rounded_corners = true 
+
+@onready var animation = $animator # A reference to the animation player node
+
+# Get the gravity from the project settings to be synced with RigidBody nodes.
+
+
+
+
+func _physics_process(delta):
+	
+	# Add the gravity.
+	# Handle gravity
+	velocity.y += gravity * delta
+
+	# Handle Jump.
+	if Input.is_action_just_pressed(\"Jump\") and is_on_floor():
+		velocity.y = JUMP_VELOCITY # Perform a normal jump if on the floor
+		can_double_jump = true # Enable the double jump flag
+	elif Input.is_action_just_pressed(\"Jump\") and can_double_jump:
+		velocity.y = JUMP_VELOCITY  # Perform a double jump if in the air and the flag is true
+		can_double_jump = false # Disable the double jump flag
+	if variable_height and Input.is_action_just_released(\"Jump\") and velocity.y < 0:
+		velocity.y /= jump_cut_off # Reduce the vertical velocity if the jump button is released and variable height is enabled
+		
+	# Get the input direction and handle the movement/deceleration.
+	# As good practice, you should replace UI actions with custom gameplay actions.
+	var direction = Input.get_axis(\"ui_left\", \"ui_right\")
+	if direction:
+		SPEED += acceleration  # Increase the speed by the acceleration factor multiplied by delta time
+		velocity.x = direction * SPEED *delta # Set the horizontal velocity according to the input direction
+		
+	else:
+		if velocity.x > 1:
+			velocity.x -= velocity.x / DECELERATION +1
+			print(velocity.x) # Move toward zero velocity if no input is given, using a deceleration factor of 27 multiplied by delta time
+		if velocity.x < 0.5 and velocity.x > 0:
+				velocity.x = 0
+		if velocity.x < -1:
+			velocity.x -= velocity.x / DECELERATION -1# Move toward zero velocity if no input is given, using a deceleration factor of 27 multiplied by delta time
+		if velocity.x > -0.5 and velocity.x < 0:
+				velocity.x = velocity.x / DECELERATION
+	move_and_slide() # Move and slide along the velocity vector
+	
+
+func _process(delta):
+	var right =  Input.is_action_pressed(\"ui_right\")
+	var left = Input.is_action_pressed(\"ui_left\")
+	if right:
+		$Playersprite.flip_h = false # Flip the sprite horizontally if moving right
+	if left:
+		$Playersprite.flip_h = true # Flip the sprite horizontally if moving left
+		
+	if velocity.y > 0 and not is_on_floor():
+		animation.play(\"fall\") # Play the fall animation if falling down
+	elif velocity.y < 0 and not is_on_floor():
+		animation.play(\"jump\") # Play the jump animation if jumping up
+	elif right or left:
+		animation.play(\"run\") # Play the run animation if moving horizontally
+	else:
+		animation.play(\"idle\") # Play the idle animation if not moving
+
+func _on_spring_body_shape_entered(body_rid, body, body_shape_index, local_shape_index):
+	velocity.y = JUMP_VELOCITY * 2 # Boost the vertical velocity if entering a spring area
+	
+# Reload the current scene if entering a dead barrier
+	
+func _input(event):
+	if event.is_action_pressed(\"restart\"):
+		get_tree().reload_current_scene() # Reload the current scene if pressing restart button
+
+
+func _on_dead_zones_body_shape_entered(body_rid, body, body_shape_index, local_shape_index):
+	get_tree().reload_current_scene()
+
+"
+
+[sub_resource type="GDScript" id="GDScript_u7r8v"]
+script/source = "extends Camera2D
+
+# The offset from the player
+@export var offset: Vector2
+
+# The damping factor for the camera movement
+@export var damping: float = 5.0
+
+# The amount of look ahead based on the player's velocity
+@export var look_ahead: float = 0.1
+
+# The minimum and maximum distance for the look ahead
+@export var look_ahead_min: float = 10.0
+@export var look_ahead_max: float = 100.0
+
+# The current velocity of the camera
+var velocity: Vector2
+
+func _ready():
+	# Set the initial position of the camera based on the player and offset
+	global_position = owner.global_position + offset
+
+func _physics_process(delta):
+	# Get the player node and its velocity
+	var player = owner
+	var player_velocity = player.get_physics_process_delta_time() > 0 ? player.global_position - player.get_previous_position() : Vector2.ZERO
+
+	# Calculate the desired position of the camera based on the player, offset and look ahead
+	var desired_position = player.global_position + offset
+	var look_ahead_amount = clamp(player_velocity.length() * look_ahead, look_ahead_min, look_ahead_max)
+	desired_position += player_velocity.normalized() * look_ahead_amount
+
+	# Smoothly move the camera towards the desired position using damping
+	var distance = desired_position - global_position
+	var acceleration = distance * damping - velocity
+	velocity += acceleration * delta
+	global_position += velocity * delta
+"
+
+[sub_resource type="Animation" id="Animation_lgdic"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Playersprite:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(15, 15)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Playersprite:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-4, -238)]
+}
+
+[sub_resource type="Animation" id="Animation_jb6se"]
+resource_name = "damage"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [9, 10, 9]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Playersprite:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(15, 15), Vector2(10, 10)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Playersprite:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.1, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(-4, -238), Vector2(-68, -78)]
+}
+
+[sub_resource type="Animation" id="Animation_nmb5i"]
+resource_name = "fall"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.1, 0.3, 0.5, 0.7, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [8, 7, 8, 7, 7]
+}
+
+[sub_resource type="Animation" id="Animation_43rgp"]
+resource_name = "idle"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4]
+}
+
+[sub_resource type="Animation" id="Animation_iypao"]
+resource_name = "jump"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.1, 0.3, 0.6, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [5, 6, 5, 6]
+}
+
+[sub_resource type="Animation" id="Animation_5amla"]
+resource_name = "run"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.5, 0.6, 0.7, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [11, 12, 13, 14, 11, 12, 13, 14]
+}
+
+[sub_resource type="Animation" id="Animation_r6ket"]
+resource_name = "spring"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_cyvqi"]
+_data = {
+"RESET": SubResource("Animation_lgdic"),
+"damage": SubResource("Animation_jb6se"),
+"fall": SubResource("Animation_nmb5i"),
+"idle": SubResource("Animation_43rgp"),
+"jump": SubResource("Animation_iypao"),
+"run": SubResource("Animation_5amla"),
+"spring": SubResource("Animation_r6ket")
+}
+
+[node name="Player1" type="CharacterBody2D"]
+scale = Vector2(0.5, 0.5)
+floor_max_angle = 0.0
+script = SubResource("GDScript_371ig")
+deceleration = 10.0
+acceleration = 4.5
+
+[node name="Camera" type="Camera2D" parent="."]
+zoom = Vector2(2, 2)
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+drag_horizontal_enabled = true
+drag_vertical_enabled = true
+script = SubResource("GDScript_u7r8v")
+
+[node name="Playersprite" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(-4, -238)
+scale = Vector2(15, 15)
+texture = ExtResource("1_pbxwm")
+hframes = 15
+
+[node name="animator" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_cyvqi")
+}
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+scale = Vector2(0.05, 0.05)
+polygon = PackedVector2Array(-160, 80, -120, 40, -48, 32, 48, 32, 80, 40, 120, 80, 120, 120, 160, 160, 160, 200, 112, 240, -16, 240, -80, 240, -160, 240, -200, 200, -200, 160, -160, 120)
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_xh4eg")
+autoplay = true
