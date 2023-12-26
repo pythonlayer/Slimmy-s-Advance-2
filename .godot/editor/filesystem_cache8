@@ -1,30 +1,95 @@
 ea4bc82a6ad023ab7ee23ee620429895
-::res://::1697308136
-export_presets.cfg::TextFile::-1::1696693728::0::1::::<><>::
-::res://assetes/::1696624891
-README.md::TextFile::-1::1693408448::0::1::::<><>::
-::res://assetes/images/::1696625654
-bg.png::CompressedTexture2D::3693625676795858882::1692619548::1693323574::1::::<><>::
-bgparalax.png::CompressedTexture2D::590066893146943443::1692922055::1693323574::1::::<><>::
-Croco1.png::CompressedTexture2D::6948965672654118104::1693321452::1693323574::1::::<><>::
-Croco2.png::CompressedTexture2D::1145149618152442317::1693321538::1693323574::1::::<><>::
-icone.png::CompressedTexture2D::9054538011123359077::1693143998::1693323574::1::::<><>::
-particle2.png::CompressedTexture2D::6731778126734934546::1693144755::1693323574::1::::<><>::
-particle.png::CompressedTexture2D::1394559832872525408::1693135007::1693323574::1::::<><>::
-player.png::CompressedTexture2D::1606587082702069100::1693131180::1693323574::1::::<><>::
-slimmy.png::CompressedTexture2D::9003351796943645644::1696625651::1696625654::1::::<><>::
-Spring!.png::CompressedTexture2D::3207620127943036530::1692573707::1693323574::1::::<><>::
-tilemap.png::CompressedTexture2D::1696812282342165186::1692723051::1693323574::1::::<><>::
-::res://assetes/music - sounds/::1693323574
-Place_holder_music.mp3::AudioStreamMP3::6680249941935178435::1692635299::1693323574::1::::<><>::
-::res://assetes/scenes/::1696958905
-player_1.tscn::PackedScene::2269007335235205233::1696958905::0::1::::<><>::uid://c2f70gcpsjekx::::res://assetes/music - sounds/Place_holder_music.mp3<>uid://t4sgxnc34kps::::res://assetes/images/particle.png<>uid://d1jj5hlb1lev1::::res://assetes/images/slimmy.png<>uid://c256nw77bva4a::::res://assetes/images/particle2.png
-spring.tscn::PackedScene::1214214621081375710::1696631719::0::1::::<><>::uid://blx2bgkpo6bje
-world.tscn::PackedScene::6836630112937292687::1696631719::0::1::::<><>::uid://7lehprto5ubp
-::res://assetes/scripts/::1693324271
-Player_movement.gd::GDScript::-1::1693074796::0::1::::PlayerMovementData<>Resource<>::
-spring.gd::GDScript::-1::1693324271::0::1::::<>Area2D<>::
-::res://build/::1696693783
-slimmy's advance.apple-touch-icon.png::CompressedTexture2D::4299433166023969314::1696693727::1696693783::1::::<><>::
-slimmy's advance.icon.png::CompressedTexture2D::3060630044977873056::1696693727::1696693783::1::::<><>::
-slimmy's advance.png::CompressedTexture2D::620289915848812455::1696693727::1696693783::1::::<><>::
+::res://::1703526864
+bullete.gd::GDScript::-1::1703365170::0::1::::<>Area2D<>::
+coin.tscn::PackedScene::7273355277222034185::1703526856::0::1::::<><>::uid://wiroves611gc::::res://assetes/images/items.png
+croco.gd::GDScript::-1::1700993896::0::1::::<>Area2D<>::
+export_presets.cfg::TextFile::-1::1696690128::0::1::::<><>::
+icon.svg::CompressedTexture2D::3999585588227416496::1703526204::1697373570::1::::<><>::
+README.md::TextFile::-1::1697373570::0::1::::<><>::
+::res://addons/::1697373570
+::res://addons/SignalVisualizer/::1697373571
+Clear.svg::CompressedTexture2D::3255837903773849447::1697373570::1697373571::1::::<><>::
+GraphEdit.svg::CompressedTexture2D::4021355119090482483::1697373570::1697373571::1::::<><>::
+Play.svg::CompressedTexture2D::2725807992053340815::1697373570::1697373571::1::::<><>::
+plugin.cfg::TextFile::-1::1697373570::0::1::::<><>::
+SignalVisualizer.gd::GDScript::-1::1697373570::0::1::::<>EditorPlugin<>::
+Stop.svg::CompressedTexture2D::1013149624609247889::1697373570::1697373571::1::::<><>::
+::res://addons/SignalVisualizer/Common/::1697373570
+signal_connection.gd::GDScript::-1::1697373570::0::1::::SignalConnection<>Object<>::
+signal_description.gd::GDScript::-1::1697373570::0::1::::SignalDescription<>Object<>::
+signal_graph.gd::GDScript::-1::1697373570::0::1::::SignalGraph<>Object<>::
+::res://addons/SignalVisualizer/Debugger/::1697373570
+SignalDebugger.gd::GDScript::-1::1697373570::0::1::::<>Node<>::
+SignalDebugger.tscn::PackedScene::143557526043461698::1697373570::0::1::::<><>::res://addons/SignalVisualizer/Debugger/signal_debugger_panel.gd<>uid://be3nwoioa311t
+signal_debugger_panel.gd::GDScript::-1::1697373570::0::1::::SignalDebuggerPanel<>Control<>::
+::res://addons/SignalVisualizer/Visualizer/::1697373570
+resizable_label.gd::GDScript::-1::1697373570::0::1::::ResizableLabel<>Label<>::
+signal_graph_node.gd::GDScript::-1::1697373570::0::1::::SignalGraphNode<>GraphNode<>::
+signal_graph_node.tscn::PackedScene::5951068929348246385::1697373570::0::1::::<><>::res://addons/SignalVisualizer/Visualizer/signal_graph_node.gd
+signal_graph_node_item.gd::GDScript::-1::1697373570::0::1::::SignalGraphNodeItem<>Control<>::
+signal_graph_node_item.tscn::PackedScene::4305598501247934743::1697373570::0::1::::<><>::res://addons/SignalVisualizer/Visualizer/signal_graph_node_item.gd<>res://addons/SignalVisualizer/Visualizer/resizable_label.gd
+signal_visualizer_dock.gd::GDScript::-1::1697373570::0::1::::<>Control<>::
+signal_visualizer_dock.tscn::PackedScene::8243364601232602603::1697373570::0::1::::<><>::res://addons/SignalVisualizer/Visualizer/signal_visualizer_dock.gd<>uid://bmnff63evbdhv
+::res://assetes/::1703526254
+Default.tres::Theme::3153756972273322592::1703526254::0::1::::<><>::uid://cx7htkybo2k3l::::res://assetes/fonts/SonicAdvance2Regular-2Dg3.ttf<>uid://csedyv7dhpk2d::::res://assetes/fonts/GUI.png
+README.md::TextFile::-1::1693404848::0::1::::<><>::
+::res://assetes/fonts/::1703353574
+GROBOLD.ttf::FontFile::4509580520871597441::1284801710::1702922361::1::::<><>::
+GUI.png::CompressedTexture2D::6044724226489398025::1703353570::1703353574::1::::<><>::
+SonicAdvance2Regular-2Dg3.ttf::FontFile::6453704370598443331::1699938516::1702977096::1::::<><>::
+::res://assetes/images/::1703359242
+bee.png::CompressedTexture2D::6505530156888067089::1700991987::1700991988::1::::<><>::
+beeidling.png::CompressedTexture2D::4685635000316233673::1700992270::1700992272::1::::<><>::
+bg.png::CompressedTexture2D::3693625676795858882::1692615948::1693319974::1::::<><>::
+bgparalax.png::CompressedTexture2D::590066893146943443::1700581044::1700581155::1::::<><>::
+bgparalaxl2.png::CompressedTexture2D::4803033723976861634::1700581695::1700581776::1::::<><>::
+bgparalaxl3.png::CompressedTexture2D::4062246225347886007::1700581762::1700581776::1::::<><>::
+bullete.png::CompressedTexture2D::4570661189528875397::1701023670::1701023672::1::::<><>::
+coolsprites.png::CompressedTexture2D::3969247062625696689::1700558068::1700558071::1::::<><>::
+Croco1.png::CompressedTexture2D::6948965672654118104::1700844967::1700844969::1::::<><>::
+Croco2.png::CompressedTexture2D::1145149618152442317::1693317938::1693319974::1::::<><>::
+icone.png::CompressedTexture2D::9054538011123359077::1693140398::1693319974::1::::<><>::
+items.png::CompressedTexture2D::1561727882090775990::1703359240::1703359242::1::::<><>::
+particle2.png::CompressedTexture2D::6731778126734934546::1700555877::1700555882::1::::<><>::
+particle.png::CompressedTexture2D::1394559832872525408::1700555850::1700555882::1::::<><>::
+player.png::CompressedTexture2D::1606587082702069100::1693127580::1693319974::1::::<><>::
+slimmy.png::CompressedTexture2D::9003351796943645644::1700330578::1700330580::1::::<><>::
+Spring!.png::CompressedTexture2D::3207620127943036530::1692570107::1693319974::1::::<><>::
+tilemap.png::CompressedTexture2D::1696812282342165186::1692719451::1693319974::1::::<><>::
+::res://assetes/music - sounds/::1702976039
+Place_holder_music.mp3::AudioStreamMP3::6680249941935178435::1692631699::1693319974::1::::<><>::
+SamineGameAncientRuin - Copie.ogg::AudioStreamOggVorbis::3363596081153499129::1699038265::1701765031::1::::<><>::
+SamineGameTitleScreen.ogg::AudioStreamOggVorbis::5145155944181254911::1702923161::1702923212::1::::<><>::
+::res://assetes/scenes/::1703526856
+bullete.tscn::PackedScene::1442588696430172789::1703526855::0::1::::<><>::res://bullete.gd<>uid://b6ecefbp2fm0l::::res://assetes/images/bullete.png
+croco.tscn::PackedScene::451567653205646101::1703526855::0::1::::<><>::res://croco.gd<>uid://c6aepjqeam7o3::::res://assetes/images/Croco1.png<>uid://t4sgxnc34kps::::res://assetes/images/particle.png
+menue.gd::GDScript::-1::1702922762::0::1::::<>Control<>::
+menue.gdshader::Shader::-1::1703526856::0::1::::<><>::
+menue.tscn::PackedScene::8062208515238706512::1703526856::0::1::::<><>::res://assetes/scenes/menue.gd<>res://assetes/scenes/menue.gdshader<>res://assetes/scenes/Title.gd<>uid://cfkl74qsuibq2::::res://assetes/music - sounds/SamineGameTitleScreen.ogg<>uid://bk6x6fsvbqvr1::::res://assetes/Default.tres<>uid://csedyv7dhpk2d::::res://assetes/fonts/GUI.png
+mousquito.tscn::PackedScene::754262766010613769::1703526855::0::1::::<><>::res://assetes/scripts/mousiquito.gd<>uid://cyxlepxieca86::::res://assetes/images/bee.png<>uid://b700yu2gyibph::::res://assetes/images/beeidling.png<>uid://t4sgxnc34kps::::res://assetes/images/particle.png
+Play.gd::GDScript::-1::1702924906::0::1::::<>Button<>::
+player_1.tscn::PackedScene::2269007335235205233::1703526855::0::1::::<><>::res://assetes/scripts/Player_movement.gd<>uid://t4sgxnc34kps::::res://assetes/images/particle.png<>uid://d1jj5hlb1lev1::::res://assetes/images/slimmy.png<>uid://c256nw77bva4a::::res://assetes/images/particle2.png
+player_2.tscn::PackedScene::1974800684282675221::1703526855::0::1::::<><>::uid://t4sgxnc34kps::::res://assetes/images/particle.png<>uid://bwsy6iurwra6l::::res://assetes/images/coolsprites.png
+spring.tscn::PackedScene::1214214621081375710::1700992333::0::1::::<><>::uid://blx2bgkpo6bje
+Title.gd::GDScript::-1::1702924885::0::1::::<>Label<>::
+world.tscn::PackedScene::6836630112937292687::1703526855::0::1::::<><>::uid://7lehprto5ubp::::res://assetes/scenes/player_1.tscn<>uid://yf7irpbsuy7c::::res://assetes/images/tilemap.png<>uid://bsvhqfnjrf5fi::::res://assetes/images/bg.png<>res://assetes/scripts/dead zones.gd<>uid://rkf64v8bpbk5::::res://assetes/scenes/spring.tscn<>res://assetes/scripts/Camera2D.gd<>uid://in3ky0hdva72::::res://assetes/images/bgparalax.png<>uid://3euxcvrt0qwr::::res://assetes/scenes/player_2.tscn<>uid://bx41upyk6x7y6::::res://assetes/images/bgparalaxl3.png<>uid://caovi73slfwgg::::res://assetes/images/bgparalaxl2.png<>uid://k0muk1m725bx::::res://assetes/scenes/mousquito.tscn<>uid://c5gfwlaiq703c::::res://assetes/music - sounds/SamineGameAncientRuin.ogg<>uid://go0iu1woahkf::::res://assetes/scenes/croco.tscn
+::res://assetes/scripts/::1703366746
+Camera2D.gd::GDScript::-1::1699127326::0::1::::<>Camera2D<>::
+CharacterBody2D.gd::GDScript::-1::1700161110::0::1::::<>CharacterBody2D<>::
+dead zones.gd::GDScript::-1::1700583142::0::1::::<>Area2D<>::
+ennemy.gd::GDScript::-1::1701022948::0::1::::<>Area2D<>::
+fallzone.gd::GDScript::-1::1697640575::0::1::::<>CollisionShape2D<>::
+mousiquito.gd::GDScript::-1::1703366746::0::1::::<>Area2D<>::
+ParallaxLayer.gd::GDScript::-1::1700567919::0::1::::<>ParallaxLayer<>::
+Player_movement.gd::GDScript::-1::1701767209::0::1::::<>CharacterBody2D<>::
+spring.gd::GDScript::-1::1700993136::0::1::::<>Area2D<>::
+::res://build/::1696690183
+slimmy's advance.apple-touch-icon.png::CompressedTexture2D::4299433166023969314::1696690127::1696690183::1::::<><>::
+slimmy's advance.icon.png::CompressedTexture2D::3060630044977873056::1696690127::1696690183::1::::<><>::
+slimmy's advance.png::CompressedTexture2D::620289915848812455::1696690127::1696690183::1::::<><>::
+::res://Demos/::1697373570
+CharacterBody2D.gd::GDScript::-1::1697373570::0::1::::<>CharacterBody2D<>::
+Demo1.gd::GDScript::-1::1697373570::0::1::::Demo1<>Node2D<>::
+Demo1.tscn::PackedScene::235051775706593415::1697373570::0::1::::<><>::res://Demos/Demo1.gd<>res://Demos/CharacterBody2D.gd
+Demo2.gd::GDScript::-1::1697373570::0::1::::Demo2<>Demo1<>::
+Demo2.tscn::PackedScene::9037871492371421862::1697373570::0::1::::<><>::res://Demos/Demo2.gd

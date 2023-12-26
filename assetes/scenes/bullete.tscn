@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://us2hwf768766"]
+
+[ext_resource type="Script" path="res://bullete.gd" id="1_h1t2a"]
+[ext_resource type="Texture2D" uid="uid://b6ecefbp2fm0l" path="res://assetes/images/bullete.png" id="2_vwikm"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1ds53"]
+size = Vector2(40, 8)
+
+[node name="bullete" type="Area2D"]
+position = Vector2(2, 0)
+script = ExtResource("1_h1t2a")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(17, 0)
+texture = ExtResource("2_vwikm")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(17, 0)
+shape = SubResource("RectangleShape2D_1ds53")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+
+[connection signal="body_entered" from="." to="." method="_on_Bullet_body_entered"]
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="out"]

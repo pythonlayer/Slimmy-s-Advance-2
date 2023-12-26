@@ -1,4 +1,13 @@
-res://assetes/scenes/player_1.tscn
-res://assetes/scenes/spring.tscn
 res://assetes/scenes/world.tscn
-res://ennemy.tscn
+res://assetes/scenes/menue.gdshader
+res://assetes/Default.tres
+res://assetes/scenes/mousquito.tscn
+res://assetes/scenes/croco.tscn
+res://assetes/scenes/bullete.tscn
+res://assetes/scenes/player_1.tscn
+res://assetes/scenes/player_2.tscn
+res://assetes/scenes/menue.tscn
+res://coin.tscn
+res://assetes/scripts/Player_movement.gd
+res://assetes/scripts/mousiquito.gd
+res://croco.gd

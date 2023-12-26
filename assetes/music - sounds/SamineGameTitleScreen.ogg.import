@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cfkl74qsuibq2"
+path="res://.godot/imported/SamineGameTitleScreen.ogg-b15e58ed0cb476ac735da0c127b73cbd.oggvorbisstr"
+
+[deps]
+
+source_file="res://assetes/music - sounds/SamineGameTitleScreen.ogg"
+dest_files=["res://.godot/imported/SamineGameTitleScreen.ogg-b15e58ed0cb476ac735da0c127b73cbd.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

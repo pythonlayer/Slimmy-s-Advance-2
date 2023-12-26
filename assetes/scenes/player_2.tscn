@@ -1,0 +1,600 @@
+[gd_scene load_steps=28 format=3 uid="uid://3euxcvrt0qwr"]
+
+[ext_resource type="Texture2D" uid="uid://t4sgxnc34kps" path="res://assetes/images/particle.png" id="2_y7mvj"]
+[ext_resource type="Texture2D" uid="uid://bwsy6iurwra6l" path="res://assetes/images/coolsprites.png" id="4_r5uun"]
+
+[sub_resource type="GDScript" id="GDScript_371ig"]
+script/source = "extends CharacterBody2D
+
+# Constants for movement
+@export var speed = 300.0
+var SPEED = speed 
+@export var acceleration = 300.0
+var ACCELERATION = acceleration
+@export var friction = 300.0
+var FRICTION = friction * 16
+
+# Gravity and jump settings
+@export var jump_peack = 0.5
+@export var jump_height = 75.0
+@export var air_acceleration = 10.0
+@export var air_friction = 18.0
+@export var air_jump = true
+
+# Player and animator references
+@onready var player_1 = \".\"
+@onready var animator = $animator
+
+# Other references for gameplay elements
+@onready var coyote_jump_timer = $CoyoteJump
+@onready var run = $run
+@onready var jump = $jump
+@onready var gravity = (2 * jump_height) / pow(jump_peack, 2)
+@onready var JUMP_VELOCITY = gravity * jump_peack * -1
+@onready var health = 5
+@onready var label = $Label
+@onready var puchy = false
+
+# Update physics
+func _physics_process(delta):
+	apply_gravity(delta)
+	handle_jump(delta)
+	handle_movement(delta)
+	var was_on_floor = is_on_floor()
+	move_and_slide()
+	var just_left_ledge = was_on_floor and not is_on_floor() and velocity.y >= 0
+	if just_left_ledge:
+		coyote_jump_timer.start()
+
+# Update animations
+func _process(delta):
+	update_sprite()
+	update_animation()
+
+# Apply gravity to velocity
+func apply_gravity(delta):
+	if not is_on_floor():
+		velocity.y += gravity * delta
+
+# Handle jumping logic
+func handle_jump(delta):
+	if is_on_floor():
+		air_jump = true
+	if is_on_floor() or coyote_jump_timer.time_left > 0.0:
+		if Input.is_action_just_pressed(\"JumpP2\"):
+			velocity.y = JUMP_VELOCITY
+	elif not is_on_floor():
+		pass
+
+# Handle player movement
+func handle_movement(delta):
+	var direction = Input.get_axis(\"leftP2\", \"rightP2\")
+	if is_on_floor():
+		if direction != 0:
+			velocity.x = move_toward(velocity.x, SPEED * direction, ACCELERATION * delta)
+			run.set_amount(SPEED / 8)
+			run.set_emitting(true)
+		else:
+			velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
+			run.set_emitting(false)
+	else:
+		run.set_emitting(false)
+		if direction != 0:
+			velocity.x = move_toward(velocity.x, SPEED * direction, air_acceleration * delta)
+		else:
+			velocity.x = move_toward(velocity.x, 0, air_friction * delta)
+
+# Update sprite direction
+func update_sprite():
+	var right = Input.is_action_pressed(\"rightP2\")
+	var left = Input.is_action_pressed(\"leftP2\")
+	$Playersprite.scale = Vector2(1,1)
+	$Playersprite.position.y = -2.5
+	if right:
+		puchy = false
+		$Playersprite.flip_h = false
+	if left:
+		puchy = false
+		$Playersprite.flip_h = true
+
+# Update animation based on player state
+func update_animation():
+	var right = Input.is_action_pressed(\"rightP2\")
+	var left = Input.is_action_pressed(\"leftP2\")
+	if puchy == false:
+		if velocity.y > -10 and not is_on_floor():
+			animator.play(\"fall\")
+		elif velocity.y < 3 and not is_on_floor():
+			animator.play(\"jump\")
+		elif right or left:
+			animator.play(\"run\")
+		else:
+			animator.play(\"idle\")
+
+# Restart scene on collision
+func _on_dead_zones_body_shape_entered(body_rid, body, body_shape_index, local_shape_index):
+	restart_scene()
+
+# Restart scene function
+func restart_scene():
+	health -= 1
+	if health > 0:
+		var text_to_show = \"X\" + str(health)
+		label.set_text(text_to_show)
+		player_1.set_position(Vector2(0, 0))
+		player_1.visible = false
+		await get_tree().create_timer(1.0).timeout
+		player_1.visible = true
+	else:
+		player_1.queue_free()
+
+# Handle collisions with other entities
+func collide_right(body):
+	if body.is_in_group(\"Player\") and body != $\".\": 
+		puchy = true
+		if abs(body.velocity.x) > abs(velocity.x):
+			$Playersprite.flip_h = true
+			animator.stop()
+		if velocity.x == 0:
+			velocity.x = body.velocity.x + body.SPEED
+		animator.play(\"pushed\")
+
+func get_damaged(amount):
+	puchy = true
+	$animator.stop()
+	$animator.play(\"damage\")
+	health -= amount
+	if health < 0:
+		health = 0
+	var text_to_show = \"X\" + str(health)
+	label.set_text(text_to_show)
+
+func collide_left(body):
+	if body.is_in_group(\"Player\") and body != $\".\": 
+		puchy = true
+		if abs(body.velocity.x) > abs(velocity.x):
+			$Playersprite.flip_h = false
+			animator.stop()
+		if velocity.x == 0:
+			velocity.x = body.velocity.x + body.SPEED
+		animator.play(\"pushed\")
+
+func _on_right_body_exited(body):
+	puchy = false
+
+func _on_left_body_exited(body):
+	puchy = false
+
+func STOMP(body):
+	if body.is_in_group(\"Player\") and body != $\".\": 
+		puchy = true
+		velocity = -velocity / 2
+		animator.stop()
+		animator.play(\"stomped on\")
+
+func BUMP(body):
+	coyote_jump_timer.start()
+	if body.is_in_group(\"Player\") and body != $\".\": 
+		velocity.y = -velocity.y
+"
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_vb6tn"]
+lifetime_randomness = 0.3
+emission_shape = 3
+emission_box_extents = Vector3(1, 1, 1)
+particle_flag_disable_z = true
+spread = 9.0
+gravity = Vector3(-9.8, -20, 0)
+initial_velocity_min = -50.0
+angular_velocity_min = -50.0
+angular_velocity_max = 50.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+scale_min = 0.0
+turbulence_enabled = true
+collision_use_scale = true
+
+[sub_resource type="Animation" id="Animation_lgdic"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [4]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Playersprite:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 0.5)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Playersprite:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 5)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Playersprite:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_jb6se"]
+resource_name = "damage"
+length = 0.2
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.19),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [15, 16, 14]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Playersprite:modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.03, 0.07, 0.11, 0.14),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [Color(1, 1, 1, 1), Color(1, 1, 1, 0.462745), Color(1, 1, 1, 1), Color(1, 1, 1, 0.486275), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_nmb5i"]
+resource_name = "fall"
+length = 0.2
+loop_mode = 1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.04, 0.16),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [11, 10]
+}
+
+[sub_resource type="Animation" id="Animation_43rgp"]
+resource_name = "idle"
+length = 10.0
+loop_mode = 1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.47, 2.96, 3.46, 3.62, 3.86),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 4, 5, 6, 5, 7]
+}
+
+[sub_resource type="Animation" id="Animation_iypao"]
+resource_name = "jump"
+length = 0.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.11741),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [8, 9]
+}
+
+[sub_resource type="Animation" id="Animation_03dku"]
+resource_name = "pushed"
+length = 0.25
+loop_mode = 1
+step = 0.01
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.04, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [15, 16]
+}
+
+[sub_resource type="Animation" id="Animation_5amla"]
+resource_name = "run"
+length = 0.5
+loop_mode = 1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [1, 2, 3]
+}
+
+[sub_resource type="Animation" id="Animation_n22kr"]
+resource_name = "stomped on"
+length = 0.25
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Playersprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [12, 13, 14]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Playersprite:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 0.5), Vector2(0.9, 1.5), Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Playersprite:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 5), Vector2(0, -11), Vector2(0, -3)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_cyvqi"]
+_data = {
+"RESET": SubResource("Animation_lgdic"),
+"damage": SubResource("Animation_jb6se"),
+"fall": SubResource("Animation_nmb5i"),
+"idle": SubResource("Animation_43rgp"),
+"jump": SubResource("Animation_iypao"),
+"pushed": SubResource("Animation_03dku"),
+"run": SubResource("Animation_5amla"),
+"stomped on": SubResource("Animation_n22kr")
+}
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_8wt7n"]
+particle_flag_align_y = true
+particle_flag_rotate_y = true
+particle_flag_disable_z = true
+direction = Vector3(1, 1, 1)
+spread = 76.5
+gravity = Vector3(5, 500, -5)
+initial_velocity_min = -100.0
+initial_velocity_max = 150.0
+angular_velocity_min = -396.0
+angular_velocity_max = 252.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+linear_accel_min = -90.0
+linear_accel_max = 13.4
+damping_min = 15.0
+damping_max = 15.0
+scale_min = 0.0
+scale_max = 0.5
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yu0ts"]
+size = Vector2(6.5, 15)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ls4uo"]
+radius = 4.0
+height = 24.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_svi4l"]
+size = Vector2(6.75, 15)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c2pw2"]
+size = Vector2(12, 3.5)
+
+[sub_resource type="Curve" id="Curve_oervf"]
+max_value = 1024.0
+_data = [Vector2(0.0602837, 1024), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_c40yh"]
+curve = SubResource("Curve_oervf")
+
+[sub_resource type="Gradient" id="Gradient_gmq6s"]
+colors = PackedColorArray(0.952941, 0, 0.0862745, 1, 1, 1, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_h4iyw"]
+gradient = SubResource("Gradient_gmq6s")
+use_hdr = true
+
+[sub_resource type="Curve" id="Curve_3l14o"]
+min_value = -500.0
+max_value = 500.0
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.5, 500), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ee0k6"]
+curve = SubResource("Curve_3l14o")
+
+[sub_resource type="Curve" id="Curve_0cf3g"]
+_data = [Vector2(0, 0.47331), 0.0, 0.0, 0, 0, Vector2(0.315603, 0.829181), 0.0, 0.0, 0, 0, Vector2(0.478723, 0.601423), 0.0, 0.0, 0, 0, Vector2(0.925532, 0.0604982), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_4cow3"]
+curve = SubResource("Curve_0cf3g")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_h5ovj"]
+lifetime_randomness = 1.0
+emission_shape = 1
+emission_sphere_radius = 10.0
+particle_flag_align_y = true
+particle_flag_rotate_y = true
+particle_flag_disable_z = true
+flatness = 1.0
+gravity = Vector3(10, 10, 10)
+initial_velocity_min = -100.0
+initial_velocity_max = 100.0
+angular_velocity_min = 30.0
+angular_velocity_max = 30.0
+orbit_velocity_min = 0.0
+orbit_velocity_max = 0.0
+orbit_velocity_curve = SubResource("CurveTexture_ee0k6")
+scale_min = 0.5
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_4cow3")
+color_ramp = SubResource("GradientTexture1D_h4iyw")
+anim_speed_max = 4.95
+anim_speed_curve = SubResource("CurveTexture_c40yh")
+sub_emitter_mode = 1
+sub_emitter_frequency = 0.01
+collision_use_scale = true
+
+[node name="Player" type="CharacterBody2D" groups=["Player"]]
+floor_constant_speed = true
+floor_snap_length = 3.0
+script = SubResource("GDScript_371ig")
+speed = 500.0
+acceleration = 10.0
+friction = 200.0
+jump_peack = 0.4
+jump_height = 50.0
+air_acceleration = 200.0
+air_friction = 100.0
+
+[node name="run" type="GPUParticles2D" parent="."]
+position = Vector2(-1, 12)
+amount = 14
+process_material = SubResource("ParticleProcessMaterial_vb6tn")
+texture = ExtResource("2_y7mvj")
+
+[node name="animator" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_cyvqi")
+}
+
+[node name="Playersprite" type="Sprite2D" parent="."]
+position = Vector2(0, 5)
+scale = Vector2(1, 0.5)
+texture = ExtResource("4_r5uun")
+hframes = 17
+frame = 4
+
+[node name="CoyoteJump" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
+[node name="Boom" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 100
+process_material = SubResource("ParticleProcessMaterial_8wt7n")
+texture = ExtResource("2_y7mvj")
+randomness = 1.0
+
+[node name="Label" type="Label" parent="."]
+offset_left = -11.0
+offset_top = -37.0
+offset_right = 7.0
+offset_bottom = -11.0
+text = "x5"
+
+[node name="RIGHT" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RIGHT"]
+position = Vector2(2.75, 3.5)
+shape = SubResource("RectangleShape2D_yu0ts")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1, 2)
+shape = SubResource("CapsuleShape2D_ls4uo")
+
+[node name="LEFT" type="Area2D" parent="."]
+
+[node name="colition" type="CollisionShape2D" parent="LEFT"]
+position = Vector2(-4.625, 3.5)
+shape = SubResource("RectangleShape2D_svi4l")
+
+[node name="UP" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UP"]
+position = Vector2(-1, -9.25)
+shape = SubResource("RectangleShape2D_c2pw2")
+
+[node name="DOWN" type="Area2D" parent="."]
+collision_layer = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DOWN"]
+position = Vector2(-1, 11.75)
+shape = SubResource("RectangleShape2D_c2pw2")
+
+[node name="Dammage" type="GPUParticles2D" parent="."]
+position = Vector2(-6, 0)
+emitting = false
+amount = 100
+sub_emitter = NodePath(".")
+process_material = SubResource("ParticleProcessMaterial_h5ovj")
+texture = ExtResource("2_y7mvj")
+collision_base_size = 16.42
+
+[connection signal="body_entered" from="RIGHT" to="." method="collide_right"]
+[connection signal="body_exited" from="RIGHT" to="." method="_on_right_body_exited"]
+[connection signal="body_entered" from="LEFT" to="." method="collide_left"]
+[connection signal="body_exited" from="LEFT" to="." method="_on_left_body_exited"]
+[connection signal="body_entered" from="UP" to="." method="STOMP"]
+[connection signal="body_exited" from="UP" to="." method="_on_left_body_exited"]
+[connection signal="body_entered" from="DOWN" to="." method="BUMP"]

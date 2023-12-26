@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://bn6l63bxlidkj"
+path="res://.godot/imported/SamineGameAncientRuin - Copie.ogg-17113f77ea6c24c3c0acbec9b10b6a2d.oggvorbisstr"
+
+[deps]
+
+source_file="res://assetes/music - sounds/SamineGameAncientRuin - Copie.ogg"
+dest_files=["res://.godot/imported/SamineGameAncientRuin - Copie.ogg-17113f77ea6c24c3c0acbec9b10b6a2d.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

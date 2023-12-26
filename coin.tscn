@@ -1,0 +1,58 @@
+[gd_scene load_steps=6 format=3 uid="uid://dbvjdmf4xgg06"]
+
+[ext_resource type="Texture2D" uid="uid://wiroves611gc" path="res://assetes/images/items.png" id="1_ejw02"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_48k80"]
+radius = 9.48683
+
+[sub_resource type="Animation" id="Animation_24abb"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_txe7f"]
+resource_name = "rotate"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [0, 1]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hy0vf"]
+_data = {
+"RESET": SubResource("Animation_24abb"),
+"rotate": SubResource("Animation_txe7f")
+}
+
+[node name="Coin" type="Area2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-2, 0)
+shape = SubResource("CircleShape2D_48k80")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_hy0vf")
+}
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_ejw02")
+hframes = 5
